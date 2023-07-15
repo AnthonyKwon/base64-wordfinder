@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define B64_SIZE 6
+#define B64_BIT_SIZE 6
 
 char* base64_encode(char* input) {
     // test if input size is multipied by 3 (24 bits = 3 bytes)
@@ -13,17 +13,18 @@ char* base64_encode(char* input) {
 
     // base64 encoding part
     int buf, strsize = strlen(input)*sizeof(input);
-    char* output = (char*)malloc(sizeof(char) * 50);
-    for (int p = 0; p < strsize; p+=B64_SIZE) {
+    // set size of base64 output char array to (base64 string size + \0)
+    char* output = (char*)malloc(sizeof(char) * (strlen(input)/3*4)+1);
+    for (int p = 0; p < strsize; p+=B64_BIT_SIZE) {
         // bit parsing mechamism
-        if ((p/B64_SIZE) % 4 == 1) {
+        if ((p/B64_BIT_SIZE) % 4 == 1) {
             buf = (*(input-1) << 4) & 48; // get 2 bits(xxxxxx00) from last address
             buf += (*input >> 4) & 15; // get 4 bits(0000xxxx) from current address
             input++;
-        } else if ((p/B64_SIZE) % 4 == 2) {
+        } else if ((p/B64_BIT_SIZE) % 4 == 2) {
             buf = (*(input-1) << 2) & 60; // get 4 bits(xxxx0000) from last address
             buf += (*input >> 6) & 3; // get 2 bits(00xxxxxx) from current address
-        } else if ((p/B64_SIZE) % 4 == 3) {
+        } else if ((p/B64_BIT_SIZE) % 4 == 3) {
             buf = *input & 63; // get 6 bits(xx000000) from current address
             input++;
         } else {
@@ -39,9 +40,11 @@ char* base64_encode(char* input) {
 
         // convert to ascii
         if (buf < 26)
-            output[p/B64_SIZE] = buf + 65;
+            output[p/B64_BIT_SIZE] = buf + 65;
         else
-            output[p/B64_SIZE] = buf + 71;
+            output[p/B64_BIT_SIZE] = buf + 71;
     }
+    // add '\0' to end of char array (fix for garbage value printedS)
+    output[strlen(output)-1] = '\0';
     return output;
 }
