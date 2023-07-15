@@ -1,6 +1,6 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define B64_BIT_SIZE 6
 
 char* base64_encode(char* input) {
@@ -14,7 +14,9 @@ char* base64_encode(char* input) {
     // base64 encoding part
     int buf, strsize = strlen(input)*sizeof(input);
     // set size of base64 output char array to (base64 string size + \0)
-    char* output = (char*)malloc(sizeof(char) * (strlen(input)/3*4)+1);
+    char *output = (char*)malloc(sizeof(char) * ((strlen(input)/3*4)+1));
+     // add '\0' to end of char array (fix for garbage value printed)
+    output[((strlen(input)/3*4))] = '\0';
     for (int p = 0; p < strsize; p+=B64_BIT_SIZE) {
         // bit parsing mechamism
         if ((p/B64_BIT_SIZE) % 4 == 1) {
@@ -44,7 +46,5 @@ char* base64_encode(char* input) {
         else
             output[p/B64_BIT_SIZE] = buf + 71;
     }
-    // add '\0' to end of char array (fix for garbage value printedS)
-    output[strlen(output)-1] = '\0';
     return output;
 }
